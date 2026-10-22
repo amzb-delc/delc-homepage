@@ -2,11 +2,10 @@
 RewriteEngine On
 RewriteBase /
 
-# http → https
-# 前段に Cloudflare があり、サーバーへは常に http で届くため %{HTTPS} では判定できない。
-# ブラウザ側のプロトコルは X-Forwarded-Proto ヘッダーで判定する
-RewriteCond %{HTTP:X-Forwarded-Proto} !=https
-RewriteRule (.*) https://www.delc.jp/$1 [R=301,L]
+# http → https の統一は .htaccess では行わない。
+# 前段の Cloudflare がサーバーへ http で接続するため、サーバー側で https 判定すると
+# 無限リダイレクトになる(%{HTTPS} も X-Forwarded-Proto も使えなかった)。
+# https 統一は Cloudflare の「Always Use HTTPS」で行う。
 
 # delc.jp → www.delc.jp
 RewriteCond %{HTTP_HOST} ^delc\.jp
