@@ -2,7 +2,7 @@
 
 株式会社デルクのコーポレートサイトです。静的サイトとしてビルドし、レンタルサーバー(StarServer)へ FTP でアップロードして公開しています。
 
-- 公開サイト: https://delc.co.jp
+- 公開サイト: https://www.delc.jp
 - リポジトリのデフォルトブランチ: `feature`
 
 ## 技術スタック
@@ -52,5 +52,7 @@ git push では本番に反映されません。公開は以下の手動作業�
 1. `npm run build` で `dist/` を生成する
 2. FTP クライアント(Cyberduck など)で StarServer に SSL 接続する
 3. `dist/` の内容をドキュメントルートへアップロードする
+
+`public/.htaccess` もビルドで `dist/` にコピーされます。https への統一、`delc.jp` → `www.delc.jp` の転送、末尾 `index.html` の除去を担っているので、アップロード時に一緒に上書きしてください(FTP クライアントで隠しファイルを表示する設定が必要です)。
 
 接続情報は StarServer のサーバー管理ツールで確認してください(このリポジトリには置かない)。運用上の内部メモは gitignore 済みの `docs/*.local.md` に置く運用とします。

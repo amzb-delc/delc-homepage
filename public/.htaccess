@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# http → https
+RewriteCond %{HTTPS} !=on
+RewriteRule (.*) https://www.delc.jp/$1 [R=301,L]
+
+# delc.jp → www.delc.jp
+RewriteCond %{HTTP_HOST} ^delc\.jp
+RewriteRule (.*) https://www.delc.jp/$1 [R=301,L]
+
+# 末尾の index.html を取り除く
+RewriteCond %{THE_REQUEST} ^.*/index.html
+RewriteRule ^(.*)index.html$ https://www.delc.jp/$1 [R=301,L]
+</IfModule>

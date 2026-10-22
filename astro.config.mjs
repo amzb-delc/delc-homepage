@@ -6,7 +6,7 @@ import tailwind from '@astrojs/tailwind'
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://delc.co.jp',
+  site: 'https://www.delc.jp',
   integrations: [
     react(),
     sitemap(),
