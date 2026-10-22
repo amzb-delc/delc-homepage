@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# http → https の統一は .htaccess では行わない。
+# 前段の Cloudflare がサーバーへ http で接続するため、サーバー側で https 判定すると
+# 無限リダイレクトになる(%{HTTPS} も X-Forwarded-Proto も使えなかった)。
+# https 統一は Cloudflare の「Always Use HTTPS」で行う。
+
+# delc.jp → www.delc.jp
+RewriteCond %{HTTP_HOST} ^delc\.jp
+RewriteRule (.*) https://www.delc.jp/$1 [R=301,L]
+
+# 末尾の index.html を取り除く
+RewriteCond %{THE_REQUEST} ^.*/index.html
+RewriteRule ^(.*)index.html$ https://www.delc.jp/$1 [R=301,L]
+</IfModule>

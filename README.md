@@ -2,7 +2,7 @@
 
 株式会社デルクのコーポレートサイトです。静的サイトとしてビルドし、レンタルサーバー(StarServer)へ FTP でアップロードして公開しています。
 
-- 公開サイト: https://delc.co.jp
+- 公開サイト: https://www.delc.jp
 - リポジトリのデフォルトブランチ: `feature`
 
 ## 技術スタック
@@ -53,4 +53,29 @@ git push では本番に反映されません。公開は以下の手動作業�
 2. FTP クライアント(Cyberduck など)で StarServer に SSL 接続する
 3. `dist/` の内容をドキュメントルートへアップロードする
 
+`public/.htaccess` もビルドで `dist/` にコピーされます。`delc.jp` → `www.delc.jp` の転送と末尾 `index.html` の除去を担っているので、アップロード時に一緒に上書きしてください(FTP クライアントで隠しファイルを表示する設定が必要です)。
+
 接続情報は StarServer のサーバー管理ツールで確認してください(このリポジトリには置かない)。運用上の内部メモは gitignore 済みの `docs/*.local.md` に置く運用とします。
+
+## 本番の構成と注意点
+
+```
+ブラウザ ──https──▶ Cloudflare ──http──▶ StarServer(Apache / 静的ファイル)
+```
+
+- **正規ドメインは `https://www.delc.jp`**。`delc.jp` は `www` へ 301 転送する。`delc.co.jp` は別会社のドメインなので使わないこと
+- **DNS と CDN は Cloudflare**(ネームサーバーが Cloudflare、A レコードはプロキシ経由)。メールは StarServer(netowl)の MX をそのまま使用。Cloudflare を導入した経緯は記録が残っていない
+- **https 統一は Cloudflare の「Always Use HTTPS」で行う**(SSL/TLS > Edge Certificates で有効化済み、2026-10-22)
+- **サーバー側に PHP はない**。旧 WordPress 時代の `.php` / `wp-*` が公開ディレクトリに無いことを確認済み(2026-10-22)。PHP の脆弱性情報が出ても対応不要
+
+### `.htaccess` に https 転送を書いてはいけない
+
+Cloudflare は StarServer へ **http** で接続するため、サーバー側で「https でなければ転送」と書くと、どのリクエストも http として届いて転送され続け、**無限リダイレクト(ERR_TOO_MANY_REDIRECTS)でサイト全体が落ちる**。2026-10-22 に実際に発生した。
+
+- `RewriteCond %{HTTPS} !=on` はもちろん、`%{HTTP:X-Forwarded-Proto}` での判定も StarServer にはヘッダーが届かず効かなかった
+- https 統一が必要なときは Cloudflare 側の設定で行う
+- 転送ルールの転送先(`https://www.delc.jp/...`)に https を書くのは問題ない
+
+### リダイレクトがおかしいとき
+
+Cloudflare が 301 応答をキャッシュしていることがある(特に `robots.txt` などの静的ファイル)。`.htaccess` を直してもブラウザで直らない場合は、Cloudflare の Caching > Configuration > **Purge Everything** でキャッシュを消す。
